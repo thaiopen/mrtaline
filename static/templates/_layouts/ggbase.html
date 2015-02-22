@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple Map</title>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <!-- Bootstrap core CSS  <div id="map-canvas"></div>-->
+        <link href="/static/assets/css/savemarker.css" rel="stylesheet">
+        <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/static/assets/css/slidemenu.css" rel="stylesheet">
+        <style>
+          html, body, #map-canvas {
+            height: 100%;
+            margin: 0px;
+            padding: 0px
+          }
+          body { padding-top: 50px; }
+        </style>
+
+    </head>
+    <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <!-- SlidePanel Button Container -->
+          	<div id="slidein-panel-container">
+			<a id="slidein-panel-btn" href="#"><i class="glyphicon glyphicon-list"></i></a>
+		</div>
+                <!-- /SlidePanel Button Container -->
+          	<!-- SlidePanel -->
+	<div id="slidein-panel">
+
+		<!-- SlidePanel Content -->
+		<ul>
+			<li><a href="#"><i class="icon-gear"></i>&nbsp; Settings</a></li>
+			<li><a href="#"><i class="icon-music"></i>&nbsp; Music</a></li>
+			<li><a href="#"><i class="icon-facetime-video"></i>&nbsp; Video</a></li>
+			<li><a href="#"><i class="icon-cloud-upload"></i>&nbsp; Cloud</a></li>
+			<li><a href="#"><i class="icon-bell-alt"></i>&nbsp; Alarm</a></li>
+			<li><a href="#"><i class="icon-comment"></i>&nbsp; Comment</a></li>
+			<li><a href="#"><i class="icon-envelope"></i>&nbsp; Inbox</a></li>
+			<li><a href="#"><i class="icon-bookmark"></i>&nbsp; Bookmarks</a></li>	
+			<li><a href="#"><i class="icon-off"></i>&nbsp; Logout</a></li>
+		</ul>
+		<!-- /SlidePanel Content -->
+	</div>
+	<!-- /SlidePanel -->
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Project name</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Help</a></li>
+          </ul>
+          <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" placeholder="Search...">
+          </form>
+        </div>
+      </div>
+    </nav>
+        <div id="map-canvas"></div>
+	<!-- BOOTSTRAP CONTENT -->
+
+
+
+        <div class="marker-edit">
+            <form class="form-horizontal save-form marker-edit" style="display: none" id="post-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="name">Name</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="input-xlarge name" name="name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="category">Type?</label>
+                    <div class="col-sm-8">
+                        <select name="category" class='type'>
+                            <option value="asset">something I like</option>
+                            <option value="deficit">something I do not like</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label " for="description">Description</label>
+                    <div class="col-sm-8">
+                        <textarea class="input-xlarge desc" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <button type="button" class="save-marker  btn btn-success btn-block  btn-xs">Save Marker</button>
+                    </div>
+                </div>
+            </form>
+        </div> 
+        </p>
+
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=drawing"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="static/assets/js/ggmap.js"></script>
+        <script src="static/assets/js/savemarker.js"></script>
+        <script src="static/assets/js/jquery.slidepanel.js"></script>
+
+    </body>
+</html>
+
+

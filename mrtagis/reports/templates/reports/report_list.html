@@ -1,0 +1,27 @@
+{% extends "_layouts/basemap.html" %}
+{% load staticfiles %}
+
+{% load leaflet_tags %}
+{% load geojson_tags %}
+
+{% block title%}
+    Report Listing Page
+{% endblock%}
+
+
+{% block extra_assets %}
+  {% leaflet_js %}
+  {% leaflet_css %}
+{% endblock %}
+
+{% block content %}
+    <script type="text/javascript">
+      var collection = {{ report_lists |geojsonfeature|safe }};
+      function map_init(map, options) {
+          L.geoJson(collection).addTo(map);
+      }
+    </script>
+
+    {% leaflet_map "reports" callback="window.map_init" %}
+
+{% endblock %}

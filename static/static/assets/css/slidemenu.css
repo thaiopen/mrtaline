@@ -1,0 +1,86 @@
+/*************************************************
+      SlidePanel CSS 
+      @author Fabio Mangolini
+      http://www.responsivewebmobile.com
+**************************************************/
+
+body {
+  margin-top: 50px;
+}
+.navbar-inverse {
+    background-color:  #424F5C;
+    border-color: #080808;
+}
+.navbar-brand {
+    float: left;
+    height: 50px;
+    padding: 15px;
+    font-size: 18px;
+    line-height: 20px;
+    padding-left: 60px;
+}
+
+.navbar {
+ box-shadow: inset 0 0 0px #333333, 0px 1px 5px #333333;
+ border: 0px solid transparent;
+}
+
+#slidein-panel {
+  margin: 0;
+  padding: 0;
+  height:100%;
+  overflow: auto;
+  background-color: #333333;
+  width: 220px;
+  box-shadow: inset 0 0 0px #333333, 2px 2px 5px #333333;
+}
+
+#slidein-panel ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#slidein-panel ul li {
+    background-color: #333333;
+    display: block;
+    border-top: 1px solid #333333;
+}
+
+#slidein-panel ul li a:link,
+#slidein-panel ul li a:visited {
+  display: block;
+  text-decoration: none;
+  color: #FFFFFF;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 200;
+  font-family: 'Open Sans', HelveticaNeue, Helvetica, Arial;
+}
+
+#slidein-panel ul li:hover {
+  background-color: #111111;
+}
+
+#slidein-panel-container {
+  float: left;
+  position: relative;
+  margin-left: -15px;
+}
+
+
+
+
+#slidein-panel-btn {
+  display: block;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 20px;
+  padding: 0 5px;
+  background-color: #ff0b00;
+  color: #FFFFFF;
+  text-decoration: none;
+  text-align: center;
+  vertical-align: middle;
+}
