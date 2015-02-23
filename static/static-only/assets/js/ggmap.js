@@ -6,130 +6,56 @@
 
 
 $(document).ready(function() {
-  var map;
-  initialize();
-  function initialize() {
-    var position = [13.736717, 100.523186]
-    var latlng = new google.maps.LatLng(position[0], position[1]);
-    var mapOptions = {
-      zoom: 12,
-      center: new google.maps.LatLng(position[0], position[1])
-  
-    };
-    map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
-    //marker = new google.maps.Marker({
-    //    position: latlng,
-    //	map: map,
-    //	draggable: true,
-    //	title: "Your current location!"
-    //});
-
-// Drawing
-
-  var drawingManager = new google.maps.drawing.DrawingManager({
-    drawingMode: google.maps.drawing.OverlayType.MARKER,
-    drawingControl: true,
-    drawingControlOptions: {
-      position: google.maps.ControlPosition.TOP_CENTER,
-      drawingModes: [
-        google.maps.drawing.OverlayType.MARKER,
-        google.maps.drawing.OverlayType.CIRCLE,
-        google.maps.drawing.OverlayType.POLYGON,
-        google.maps.drawing.OverlayType.POLYLINE,
-        google.maps.drawing.OverlayType.RECTANGLE
-      ]
-    },
-    markerOptions: {
-      icon: "/static/assets/icons/pin_green.png",
-      draggable: true
-    },
-    circleOptions: {
-      fillColor: '#ffff00',
-      fillOpacity: 1,
-      strokeWeight: 5,
-      clickable: false,
-      editable: true,
-      zIndex: 1
-    }
-  });
-  drawingManager.setMap(map);
-    //event listener that does the following after user draws point on the map
-    google.maps.event.addListener(drawingManager, 'overlaycomplete', function (point)
+     $.SlidePanel();
+    var mapCenter = new google.maps.LatLng(13.736717, 100.523186); //Google map Coordinates
+    var map;
+    map_initialize(); // initialize google map
+    //############### Google Map Initialize ##############
+    function map_initialize()
     {
-        //"clone" the save-form to put in the infowindow
-        var form =    $(".save-form").clone().show();
-        var infowindow_content = form[0];
-        var infowindow = new google.maps.InfoWindow({
-            content: infowindow_content
-        });
- 
-        //make each marker clickable
-        google.maps.event.addListener(point.overlay, 'click', function() {
-            infowindow.open(map,point.overlay);
-        });
- 
-        //open infowindow by default
-        infowindow.open(map,point.overlay);
- 
-        //when user clicks on the "submit" button
-        form.submit({point: point}, function (event) {
-            //prevent the default form behavior (which would refresh the page)
-            event.preventDefault();
- 
-            //put all form elements in a "data" object
-            var data = {
-                name: $("input[name=name]", this).val(),
-                description: $("textarea[name=description]", this).val(),
-                category: $("select[name=category]",this).val(),
-                lat: event.data.point.overlay.getPosition().lat(),
-                lon: event.data.point.overlay.getPosition().lng()
-            };
-            trace(data)
- 
-            //send the results to the PHP script that adds the point to the database
-            $.post("adddata.php", data, up206b.saveStopResponse, "json");
- 
-            //Erase the form and replace with new message
-            infowindow.setContent('done')
-            return false;
-        });
-    });
-  
-    // Try HTML5 geolocation
-    if(navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-	var pos = new google.maps.LatLng(position.coords.latitude,
-					 position.coords.longitude);
-  
-	var infowindow = new google.maps.InfoWindow({
-	  map: map,
-	  position: pos,
-	  content: 'Location found using HTML5.'
-	});
-  
-	map.setCenter(pos);
-      }, function() {
-	handleNoGeolocation(true);
-      });
-    } else {
-      // Browser doesn't support Geolocation
-      handleNoGeolocation(false);
-    }
-  }
+        var googleMapOptions = 
+        { 
+            center: mapCenter, // map center
+            zoom: 14, //zoom level, 0 = earth view to higher value
+            maxZoom: 18,
+            minZoom: 10,
+            zoomControlOptions: {
+                style: google.maps.ZoomControlStyle.SMALL //zoom control size
+            },
+            scaleControl: true, // enable scale control
+            mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
+        };
 
-  function handleNoGeolocation(errorFlag) {
-    if (errorFlag) {
-      var content = 'Error: The Geolocation service failed.';
-    } else {
-      var content = 'Error: Your browser doesn\'t support geolocation.';
+        map = new google.maps.Map(document.getElementById("map-canvas"), googleMapOptions);			
+
+        //Load Markers from the XML File, Check (map_process.php)
+        $.get("map_process.php", function (data) {
+            $(data).find("marker").each(function () {
+                var name 		= $(this).attr('name');
+                var address 	= '<p>'+ $(this).attr('address') +'</p>';
+                var type 		= $(this).attr('type');
+                var point 	= new google.maps.LatLng(parseFloat($(this).attr('lat')),parseFloat($(this).attr('lng')));
+                create_marker(point, name, address, false, false, false, "http://sanwebe.com/assets/google-map-save-markers-db/icons/pin_blue.png");
+            });
+        });	
+
+        //Right Click to Drop a New Marker
+        google.maps.event.addListener(map, 'click', function(event) {
+            //Edit form to be displayed with new marker
+//            var EditForm = '<p><div class="marker-edit">'+
+//                '<form action="ajax-save.php" method="POST" name="SaveMarker" id="SaveMarker">'+
+//                '<label for="pName"><span>Place Name :</span><input type="text" name="pName" class="save-name" placeholder="Enter Title" maxlength="30" /></label>'+
+//                '<label for="pDesc"><span>Description :</span><textarea name="pDesc" class="save-desc" placeholder="Enter Address" maxlength="90"></textarea></label>'+
+//                '<label for="pType"><span>Type :</span> <select name="pType" class="save-type"><option value="restaurant">Rastaurant</option><option value="bar">Bar</option>'+
+//                '<option value="house">House</option></select></label>'+
+//                '</form>'+
+//                '</div></p><button name="save-marker" class="save-marker">Save Marker Details</button>';
+            var EditForm = $(".save-form").clone().show()[0]; 
+            //Drop a new Marker with our Edit Form
+            create_marker(map,event.latLng, 'New Marker', EditForm.outerHTML, true, true, true, "/static/assets/icons/pin_green.png");
+        });
+
     }
-  
-    var infowindow = new google.maps.InfoWindow(options);
-    map.setCenter(options.position);
-  }
 
 
 });
-
-
-

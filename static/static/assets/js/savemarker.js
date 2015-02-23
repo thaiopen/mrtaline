@@ -42,14 +42,16 @@ function create_marker(map,MapPos, MapTitle, MapDesc,  InfoOpenDefault, DragAble
         google.maps.event.addDomListener(saveBtn, "click", function(event) {
             var mReplace = contentString.find('span.info-content'); //html to be replaced after success
             var mName = contentString.find('input.name')[0].value; //name input field value
+            var mUser = contentString.find('input.user')[0].value; //name input field value
             var mDesc  = contentString.find('textarea.desc')[0].value; //description input field value
             var mType = contentString.find('select.type')[0].value; //type of marker
             var mToken = contentString.find('input[name=csrfmiddlewaretoken]')[0].value;
+            token = mToken;
             if(mName =='' || mDesc =='')
             {
                 alert("Please enter Name and Description!!");
             }else{
-                save_marker(marker, mName, mDesc, mType, mReplace, mToken); //call save marker function
+                save_marker(marker, mName, mDesc, mType, mReplace, mToken, mUser); //call save marker function
             }
         });
     }
@@ -68,7 +70,7 @@ function create_marker(map,MapPos, MapTitle, MapDesc,  InfoOpenDefault, DragAble
 //############### Remove Marker Function ##############
 function remove_marker(Marker)
 {
-
+    //alert(token);
     /* determine whether marker is draggable 
        new markers are draggable and saved markers are fixed */
     if(Marker.getDraggable()) 
@@ -79,14 +81,13 @@ function remove_marker(Marker)
     {
         //Remove saved marker from DB and map using jQuery Ajax
         var mLatLang = Marker.getPosition().toUrlValue(); //get marker position
-        var myData = {del : 'true', latlang : mLatLang}; //post variables
+        var myData = {del : 'true', latlng : mLatLang, csrfmiddlewaretoken: token}; //post variables
         $.ajax({
             type: "POST",
             url: "remove_marker/",
             data: myData,
             success:function(data){
                 Marker.setMap(null); 
-                alert(data);
             },
             error:function (xhr, ajaxOptions, thrownError){
                 alert(thrownError); //throw any errors
@@ -97,7 +98,7 @@ function remove_marker(Marker)
 }
 
 //############### Save Marker Function ##############
-function save_marker(Marker, mName, mAddress, mType, replaceWin, mToken)
+function save_marker(Marker, mName, mAddress, mType, replaceWin, mToken, mUser)
 {
     //Save new marker using jQuery Ajax
     var mLatLang = Marker.getPosition().toUrlValue(); //get marker position
@@ -106,17 +107,21 @@ function save_marker(Marker, mName, mAddress, mType, replaceWin, mToken)
                   latlng : mLatLang,
                   report_type : mType,
                   csrfmiddlewaretoken: mToken,
+                  user: mUser,
                   }; //post variables
     //console.log(replaceWin);
     console.log(myData);
     $.ajax({
-        url: "save_marker/",
+        url: "/p/save_marker/",
         type: "POST",
         data: myData,
         success:function(data){
-            replaceWin.html(data+'<br/>'); //replace info window with new html
+            result =  '<p>name:' + data.name + '</p>'
+            result += '<p>latlng:'+ data.latlng +'</p>'
+            result += '<p>desc:' + data.address+ '</p>'
+            replaceWin.html(result+'<br/>'); //replace info window with new html
             Marker.setDraggable(false); //set marker to fixed
-            Marker.setIcon('/static/assets/icons/pin_blue.png'); //replace icon
+            Marker.setIcon('/static/assets/icons/pin_blue.png');//replace icon
         },
         error:function (xhr, ajaxOptions, thrownError){
             alert(thrownError); //throw any errors

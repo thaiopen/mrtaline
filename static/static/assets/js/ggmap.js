@@ -9,6 +9,7 @@ $(document).ready(function() {
      $.SlidePanel();
     var mapCenter = new google.maps.LatLng(13.736717, 100.523186); //Google map Coordinates
     var map;
+    var token;
     map_initialize(); // initialize google map
     //############### Google Map Initialize ##############
     function map_initialize()
