@@ -11,6 +11,9 @@ from .forms import RegistrationForm, LoginForm
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse_lazy
 from braces import views
+from django.contrib.gis.geos import fromstr
+
+from reports.models import Place, Portal
 # Create your views here.
 #def index(request):
 #    return render(request,'home/index.html',locals())
@@ -26,12 +29,29 @@ def save_marker(request):
         address = request.POST.get('address',None)
         latlng = request.POST.get('latlng',None)
         report_type = request.POST.get('report_type',None)
+        user = request.POST.get('user',None)
+        token = request.POST.get('csrfmiddlewaretoken',None)
         
         response_data['name'] = name
         response_data['address'] = address
         response_data['latlng'] = latlng
         response_data['report_type'] = report_type
+        response_data['user'] = user
+        response_data['token'] = token
+        #current_point = geos.fromstr("POINT(%s %s)" % (longitude, latitude))
+        #split string with with delimeters
+        #str.split(', ')
+        p = latlng.split(',')
+        point = fromstr("POINT(%s %s)" % (p[1],p[0]) )
         print response_data
+        #print p
+        #print point
+        p = Portal.objects.get(title=user)
+        u = User.objects.get(username=user)
+        #print p
+        point_obj = Place(title=name, description=address,location=point, portal=p, user=u)
+        print point_obj
+        point_obj.save()
         #request.POST
         #{"latlng": "13.733382,100.521061", "csrfmiddlewaretoken": "F11cng7GGhHqmAsnHhrCQAIg5nVOijMT", "name": "aaaaa", "report_type": "asset", "address": "aaaaaa"}
        #return render(request,json.dumps(request.POST),content_type='application/json')
@@ -39,27 +59,45 @@ def save_marker(request):
         #return  render(request,'home/index.html',JsonResponse(response_data))
         return HttpResponse(JsonResponse(response_data), content_type="application/json")
     else:
-        return render(request,json.dumps({"nothing to see": "this isn't happening"}),content_type='application/json')
+        msg = {"nothing to see": "this isn't happening"}
+        return HttpResponse(JsonResponse(msg), content_type="application/json")
 
 def remove_marker(request):
-    pass
+    if request.method == 'POST' and request.is_ajax:
+        latlng = request.POST.get('latlng',None)
+        p = latlng.split(',')
+        point = fromstr("POINT(%s %s)" % (p[1],p[0]) )
+        Place.objects.get(location=point).delete()
+        response_data = {"progress": "it works!"}
+        return HttpResponse(JsonResponse(response_data), content_type="application/json")
+    else:
+        msg = {"progress": "it fails"}
+        return HttpResponse(JsonResponse(msg), content_type="application/json")       
 
 
 class HomePageView(generic.TemplateView):
     template_name = 'home/index.html'
+
+class PortalView(generic.TemplateView):
+    template_name = 'home/portal.html'
 
 class SignUpView(views.AnonymousRequiredMixin,views.FormValidMessageMixin, generic.CreateView):
 #    form_class = UserCreationForm
     form_class = RegistrationForm
     form_valid_message = "Thank you for signup"
     model = User
+    success_url = reverse_lazy('login')
     template_name = 'accounts/signup.html'
-#after signup will bring to profile   accouts/username
-
+    #after signup will bring to profile   accouts/username
+    #after signup create default portal for each user
+    def form_valid(self, form):
+        resp = super(SignUpView, self).form_valid(form)
+        Portal.objects.create(user=self.object,title=self.object.username)
+        return resp
 
 class LoginView(generic.FormView):
     form_class = LoginForm
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('portal')
     template_name = 'accounts/login.html'
 
     def form_valid(self, form):

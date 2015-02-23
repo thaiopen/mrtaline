@@ -1,0 +1,6 @@
+{% extends  '_layouts/portalbase.html'%}
+
+{% block title %} MRTA GIS SYSTEM  {% endblock %}
+{% block content %}
+<p>Howdy{% if user.is_authenticated %} {{ user.username }}{% endif %}!</p>
+{% endblock %}

@@ -45,6 +45,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('time', models.DateTimeField()),
+                ('note', models.TextField()),
             ],
             options={
             },
@@ -90,12 +91,43 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=256)),
+                ('slug', models.CharField(max_length=256)),
+                ('uuid', uuidfield.fields.UUIDField(unique=True, max_length=32, editable=False, blank=True)),
                 ('description', models.TextField()),
+                ('published', models.BooleanField(default=False)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now_add=True)),
+                ('pub_date', models.DateTimeField(auto_now_add=True)),
                 ('location', django.contrib.gis.db.models.fields.PointField(srid=4326)),
                 ('picture', models.ImageField(upload_to=b'')),
-                ('type', models.CharField(max_length=8, choices=[(b't', b'traffic'), (b'c', b'contruction'), (b'b', b'block')])),
+                ('status', models.CharField(max_length=1, choices=[(b'd', b'pending'), (b'p', b'confirm'), (b'a', b'approved')])),
             ],
             options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='PlaceCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=200)),
+            ],
+            options={
+                'verbose_name': 'Place Category',
+                'verbose_name_plural': 'Place Categories',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Portal',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=200)),
+                ('user', models.ForeignKey(related_name='lists', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Portal',
+                'verbose_name_plural': 'Portal',
             },
             bases=(models.Model,),
         ),
@@ -129,6 +161,24 @@ class Migration(migrations.Migration):
             options={
             },
             bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='place',
+            name='categories',
+            field=models.ManyToManyField(to='reports.PlaceCategory', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='place',
+            name='portal',
+            field=models.ForeignKey(related_name='portals', to='reports.Portal'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='place',
+            name='user',
+            field=models.ForeignKey(related_name='places', to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
         ),
         migrations.AddField(
             model_name='checkin',

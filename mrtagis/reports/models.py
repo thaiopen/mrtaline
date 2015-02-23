@@ -1,10 +1,13 @@
 from django.db import models
+
+
 from uuslug import slugify
 from django.contrib.gis.db import models as gismodels
 from django.contrib.auth.models import User
 from uuidfield import UUIDField
-
+import datetime
 # Create your models here.
+
 
 class Author(models.Model):
     username = models.CharField(max_length=100)
@@ -13,9 +16,10 @@ class Author(models.Model):
     last_name = models.CharField(max_length=40)
     email = models.EmailField()
     birth_date = models.DateField(blank=True, null=True)
-    
+
     def __unicode__(self):
         return u'%s %s' % (self.first_name, self.last_name)
+
 
 class EntryQuerySet(models.QuerySet):
     def published(self):
@@ -28,19 +32,19 @@ class Contractor(models.Model):
     phone = models.CharField(max_length=200)
     website = models.URLField(max_length=200)
     logo = models.ImageField(upload_to='media', blank=True)
-    
+
     def logo_tag(self):
         if self.logo:
             return u'<img src="%s" style="width:60px;height:60px />' % (self.logo.url)
         else:
             return u'No logo file'
     logo_tag.short_description = 'Thumbnail'
-    logo_tag.allow_tags = True 
-    
+    logo_tag.allow_tags = True
+
     def __unicode__(self):
         return self.name
-    
-    
+
+
 STATUS_CHOICES = (
     ('d', 'Draft'),
     ('p', 'Published'),
@@ -57,29 +61,28 @@ class Entry(models.Model):
     authors = models.ManyToManyField(Author, blank=True)
     contractor = models.ForeignKey(Contractor, blank=True)
     status = models.CharField(max_length=1,choices=STATUS_CHOICES)
-    
+
     objects = EntryQuerySet.as_manager()
-    
-    
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.created = datetime.datetime.today()
         self.modified = datetime.datetime.today()
-        
+
         # self.slug = slugify(self.title)
         self.slug = "%s-%s" % (self.created.strftime('%d-%b-%Y'),self.title.replace(" ", "-"))
         #self.slug = "%s" % (self.title.replace(" ", "-"))
-        
+
         super(Entry, self).save(*args, **kwargs)
-        
+
     def __unicode__(self):
         return self.title
-    
+
     class Meta:
         verbose_name = "Report Entry"
         verbose_name_plural = "Report Entries"
         ordering = ["-created"]
-        
+
 class ReportArea(gismodels.Model):
     title = models.CharField(max_length=256)
     uuid = UUIDField(auto=True)
@@ -98,7 +101,17 @@ class Category(models.Model):
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"
-        
+
+class Portal(models.Model):
+    user = models.ForeignKey(User, related_name='lists')
+    title = models.CharField(max_length=200)
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Portal"
+        verbose_name_plural = "Portal"
+
 class Report(gismodels.Model):
     title = models.CharField(max_length=256)
     description = models.TextField()
@@ -129,16 +142,48 @@ class Report(gismodels.Model):
 
     def __unicode__(self):
         return self.title
-    
+
+PLACE_STATUS = (
+    ('d', 'pending'),
+    ('p', 'confirm'),
+    ('a', 'approved'),
+)
+
+
+class PlaceCategory(models.Model):
+    title = models.CharField(max_length=200)
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Place Category"
+        verbose_name_plural = "Place Categories"
+
+
+class PlaceQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(publish=True)
+    def waitlist(self):
+        return self.filter(pub_date > datetime.datetime.today())
+
 class Place(gismodels.Model):
+    #related_name must be plurals of models name
+    user = models.ForeignKey(User, related_name='places')
+    portal = models.ForeignKey(Portal, related_name='portals',blank=True)
     title = models.CharField(max_length=256)
+    slug =  models.CharField(max_length=256)
+    uuid = UUIDField(auto=True)
     description = models.TextField()
+    published = models.BooleanField(default=False,blank=True)
+    created = models.DateTimeField(auto_now_add=True,blank=True)
+    modified = models.DateTimeField(auto_now_add=True,blank=True)   
+    pub_date = models.DateTimeField(auto_now_add=True,blank=True)
     location = gismodels.PointField()
     picture = models.ImageField()
-    type = models.CharField(
-            max_length=8,
-            choices=(('t','traffic'),('c','contruction'),('b','block'),)
-    )
+    categories = models.ManyToManyField(PlaceCategory,blank=True)
+    status = models.CharField(max_length=1,choices=PLACE_STATUS)
+
+    objects = PlaceQuerySet.as_manager()
 
     def latitude(self):
         return self.location.y
@@ -146,13 +191,19 @@ class Place(gismodels.Model):
     def longitude(self):
         return self.location.x
 
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created = datetime.datetime.today()
+        self.modified = datetime.datetime.today()
+        self.slug = "%s" % (self.title.replace(" ", "-"))
+        super(Place, self).save(*args, **kwargs)
+
     @property
     def popupContent(self):
         return '<img src="{}" /><p><{}</p>'.format(
           self.picture.url,
           self.description
           )
-
 
     def __unicode__(self):
         return self.title
@@ -162,5 +213,5 @@ class Checkin(models.Model):
     time = models.DateTimeField()
     user = models.ForeignKey(User)
     place = models.ForeignKey(Place)
-
+    note = models.TextField()
     objects = gismodels.GeoManager()

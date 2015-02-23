@@ -7,7 +7,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.gdal.srs import SpatialReference
 
 
-from models import Entry, Contractor, Author
+from models import Entry, Contractor, Author, Place, Portal
 # Register your models here.
 
 @admin.register(Contractor)
@@ -80,4 +80,6 @@ class GoogleAdmin(gisadmin.OSMGeoAdmin):
 admin.site.register(ReportArea, LeafletGeoAdmin)
 #admin.site.register(ReportArea, GoogleAdmin)
 admin.site.register(Report, ReportAdmin )
+admin.site.register(Place, ReportAdmin)
+admin.site.register(Portal)
 #admin.site.register(Report, GoogleAdmin )

@@ -63,4 +63,6 @@ def report_to_json(report):
         }
     }
 
-
+class PlaceDetailView(View):
+    def get(self, request, *args, **kwags):
+        return HttpResponse('PlaceList')
