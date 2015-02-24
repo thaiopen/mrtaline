@@ -2,7 +2,7 @@
 //############### Create Marker Function ##############
 function create_marker(map,MapPos, MapTitle, MapDesc,  InfoOpenDefault, DragAble, Removable, iconPath)
 {	  	  		  
-
+   
     //new marker
     var marker = new google.maps.Marker({
         position: MapPos,
@@ -122,6 +122,31 @@ function save_marker(Marker, mName, mAddress, mType, replaceWin, mToken, mUser)
             replaceWin.html(result+'<br/>'); //replace info window with new html
             Marker.setDraggable(false); //set marker to fixed
             Marker.setIcon('/static/assets/icons/pin_blue.png');//replace icon
+            html = '<li><a href="#"><i class="icon-gear"></i>&nbsp; Point</a></li>';
+            //:nth-child   1-index  li:eq(1)  0-index   
+            p = $('#slidein-panel  ul:nth-child(2)');
+            var detail = '<article class="row">'+
+            '<div class="col-md-12 col-sm-12">' +
+              '<div class="panel panel-default arrow left">'+
+                '<div class="panel-body">'+
+                  '<header class="text-left">'+
+                    '<div class="comment-user"><i class="fa fa-user"></i>'+ data.name  +'</div>'+
+                    '<span class="glyphicon glyphicon-time"></span><small> '+Date(data.created) +'</small><br/>'+
+                    '<span class="glyphicon glyphicon-map-marker"></span><small> '+data.latlng +'</small>'+
+                  '</header>'+
+                  '<div class="comment-post">'+
+                  '  <p> '+ data.address +'</p>'+
+                  '</div>'+
+                  '<p class="text-right list">'+
+                  '          <a href="#" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-comment"></span> Message</a>'+
+                  '          <a href="#" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-heart"></span> Favorite</a>'+
+                  '          <a href="#" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-ban-circle"></span> Unfollow</a>'+
+		  '</p>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</article>'
+            p.prepend(detail);
         },
         error:function (xhr, ajaxOptions, thrownError){
             alert(thrownError); //throw any errors

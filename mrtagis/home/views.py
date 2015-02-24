@@ -50,8 +50,10 @@ def save_marker(request):
         u = User.objects.get(username=user)
         #print p
         point_obj = Place(title=name, description=address,location=point, portal=p, user=u)
-        print point_obj
+        #print point_obj
         point_obj.save()
+        #print point_obj.created
+        response_data['created'] = point_obj.created
         #request.POST
         #{"latlng": "13.733382,100.521061", "csrfmiddlewaretoken": "F11cng7GGhHqmAsnHhrCQAIg5nVOijMT", "name": "aaaaa", "report_type": "asset", "address": "aaaaaa"}
        #return render(request,json.dumps(request.POST),content_type='application/json')
