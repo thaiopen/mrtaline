@@ -133,3 +133,6 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+
+#mark for git
