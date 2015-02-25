@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.gis.geos import Polygon
 import json
 from models  import Report
-from forms import ReportForm
+#from forms import ReportForm
 from django.views.generic import UpdateView,  View, CreateView, ListView, DetailView
 
 def index(request):
