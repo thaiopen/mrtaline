@@ -1,4 +1,4 @@
-#!/home/admin/Django/mrtaline.com/venv/bin/python
+#!/home/admin/DjangoProj/development/mrtaline/venv/bin/python
 from django.core import management
 
 if __name__ == "__main__":
